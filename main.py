@@ -103,7 +103,7 @@ class Missile(Sprite):
     def fire(self):
         if self.status == "ready":
             self.status = "shoot"
-            sound = pygame.mixer.Sound("D:\WORK\Python\Game\spaceshooter\sfx\missle.mp3")
+            sound = pygame.mixer.Sound("D:\WORK\Python\Game\spaceshooter\sound\Sound Effect - Laser.mp3")
             sound.play()
 
     def move(self):
@@ -177,7 +177,7 @@ turtle.fd(0)
 #Set the animation speed to the maximum
 turtle.speed(0) # set turtle speed
 turtle.bgcolor('black') # initiate a black window
-turtle.bgpic('D:\WORK\Python\Game\spaceshooter\img\pic.gif')
+turtle.bgpic('D:\WORK\Python\Game\spaceshooter\pic\desktop-wallpaper-pure-black-solid-black.jpg')
 
 #window title
 turtle.title("Spacewar")
@@ -219,7 +219,7 @@ game.draw_border()
 
 #Show status
 game.show_status()
-pygame.mixer.Sound("D:\WORK\Python\Game\spaceshooter\sfx\game_music.mp3")
+pygame.mixer.Sound("D:\WORK\Python\Game\spaceshooter\sound\Travis Scott - HIGHEST IN THE ROOM (Audio).mp3")
 
 
 #Loop the game 
@@ -244,7 +244,7 @@ while True:
             
         if missile.is_collision(enemy):
             game.score += 10
-            sfx = pygame.mixer.Sound("D:\WORK\Python\Game\spaceshooter\sfx\explosion.mp3")
+            sfx = pygame.mixer.Sound("D:\WORK\Python\Game\spaceshooter\sound\Big Explosion Sound Effect.mp3")
             sfx.play()
             x = random.randint(-250,250)
             y = random.randint(-250,250)

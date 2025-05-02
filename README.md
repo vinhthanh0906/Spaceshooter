@@ -37,21 +37,7 @@ The game uses a simple PyTorch model to predict the optimal firing angle based o
 ### 1. 🔽 Clone the Repository
 
 ```bash
-git clone https://github.com/vinhthanh0906/spaceshooter.git
-cd spaceshooter
-
-
-conda create -n spaceshooter python=3.9 -y
-conda activate spaceshooter
-
-pip install -r requirements.txt
-
-conda install python-tk -y
-
-
-python pytorch.py
-
-
+<pre> ```bash git clone https://github.com/vinhthanh0906/spaceshooter.git ``` ```bash cd spaceshooter ``` ```bash conda create -n spaceshooter python=3.9 -y ``` ```bash conda activate spaceshooter ``` ```bash pip install -r requirements.txt ``` ```bash conda install python-tk -y ``` ```bash python pytorch.py ``` </pre>
 ---
 
 💬 Contact Me

@@ -1,18 +1,37 @@
 import turtle
 import random
-import os
-<<<<<<< HEAD
-import pygame
-import time
-#init mixer module to playsound
-pygame.mixer.init()
-=======
-# import pygame
 import time
 #init mixer module to playsound
 # pygame.mixer.init()
->>>>>>> 2a70222 (add some auto and pytorch)
 
+
+
+
+#Apply DeepLearning by Pytorch
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import math
+import torch.nn.functional as F
+
+from config import AimingNN, BoundaryAvoidanceNN
+from config import model, boundary_model,criterion, optimizer, optimizer_boundary
+from config import DQN, ReplayBuffer
+from config import select_action
+
+#Config to RL trainning
+input_dim = 5  # [player.x, player.y, player.heading, ally.x, ally.y]
+output_dim = 3  # [0=turn left, 1=do nothing, 2=turn right] or other action choices
+
+policy_net = DQN(input_dim, output_dim)
+target_net = DQN(input_dim, output_dim)
+target_net.load_state_dict(policy_net.state_dict())
+target_net.eval()
+
+optimizer = optim.Adam(policy_net.parameters(), lr=0.001)
+buffer = ReplayBuffer(10000)
+epsilon = 0.1
+gamma = 0.99
 
 #GAME DEV
 class Sprite(turtle.Turtle):
@@ -110,13 +129,8 @@ class Missile(Sprite):
     def fire(self):
         if self.status == "ready":
             self.status = "shoot"
-<<<<<<< HEAD
-            sound = pygame.mixer.Sound("D:/WORK/Python/Game/spaceshooter/sound/Sound Effect - Laser.mp3")
-            sound.play()
-=======
             # sound = pygame.mixer.Sound("D:\WORK\Python\Game\spaceshooter\sfx\missle.mp3")
             # sound.play()
->>>>>>> 2a70222 (add some auto and pytorch)
 
     def move(self):
         if self.status == "ready":
@@ -135,7 +149,6 @@ class Missile(Sprite):
         # Border Check - Reset missile when it goes out of bounds
         if self.xcor() < -290 or self.xcor() > 290 or self.ycor() < -290 or self.ycor() > 290:
             self.status = "ready"
-    
     
     
     
@@ -189,14 +202,16 @@ turtle.fd(0)
 #Set the animation speed to the maximum
 turtle.speed(0) # set turtle speed
 turtle.bgcolor('black') # initiate a black window
-<<<<<<< HEAD
-# turtle.bgpic('D:\WORK\Python\Game\spaceshooter\pic\desktop-wallpaper-pure-black-solid-black.jpg')
-=======
 # turtle.bgpic('D:\WORK\Python\Game\spaceshooter\img\pic.gif')
->>>>>>> 2a70222 (add some auto and pytorch)
 
 #window title
 turtle.title("Spacewar")
+
+
+
+
+
+
 
 
 
@@ -208,15 +223,18 @@ turtle.tracer(0) #Speed up the drawing
 player = Player("triangle","white", 0, 0 )
 missile = Missile("triangle","yellow",0 ,0)
 
+
+
+
+
 #Multiple enemies and allies
 enemies = []
-for i in range(6):
+for i in range(1):
     enemies.append(Enemy("circle", "red", -100,0))
 
 allies = [] 
-for i in range(7):
+for ally in range(2):
     allies.append(Ally("square", "cyan",0,0 ))
-    
 
 
 """Keybinding"""
@@ -235,70 +253,138 @@ game.draw_border()
 
 #Show status
 game.show_status()
-<<<<<<< HEAD
-pygame.mixer.Sound("D:/WORK/Python/Game/spaceshooter/sound/Travis Scott - HIGHEST IN THE ROOM (Audio).mp3")
-
-
-#Loop the game 
-
-while True:
-    turtle.update()
-    time.sleep(0.01)
-    player.move()
-    missile.move()
-    
-    #Multiple object movement
-    for enemy in enemies:
-        enemy.move()
-        
-        if player.is_collision(enemy):
-            x = random.randint(-250,250)
-            y = random.randint(-250,250)
-            enemy.goto(x,y)
-            game.score -= 5
-            game.show_status()
-            
-            
-        if missile.is_collision(enemy):
-            game.score += 10
-            sfx = pygame.mixer.Sound("D:/WORK/Python/Game/spaceshooter/sound/Big Explosion Sound Effect.mp3")
-            sfx.play()
-            x = random.randint(-250,250)
-            y = random.randint(-250,250)
-            enemy.goto(x,y)
-            missile.status = 'ready'
-            game.show_status()
-            
-    
-    for ally in allies:
-        ally.move()
-        if missile.is_collision(ally):
-            x = random.randint(-250,250)
-            y = random.randint(-250,250)
-            ally.goto(x,y)
-            game.score -= 10
-            game.show_status()
-        
-        
-=======
 # pygame.mixer.Sound("D:\WORK\Python\Game\spaceshooter\sfx\game_music.mp3")
 
 
-#Loop the game 
->>>>>>> 2a70222 (add some auto and pytorch)
+#TargetLock Line Drawer
+# Line drawer for auto-aim
+line_drawer = turtle.Turtle()
+line_drawer.color("white")
+line_drawer.penup()
+line_drawer.hideturtle()
+line_drawer.speed(0)
 
+
+#Loop the game 
 while True:
     turtle.update()
     time.sleep(0.01)
     player.move()
     missile.move()
+
+    #Prevent Ally shooting
+    # Get nearest ally
+    closest_ally = min(allies, key=lambda a: player.distance(a))
+    state = [
+        player.xcor(), player.ycor(),
+        player.heading(),
+        closest_ally.xcor(), closest_ally.ycor()
+    ]
+
+    # Choose action from policy
+    action = select_action(state, policy_net, epsilon, output_dim)
+
+    # Map action to behavior
+    if action == 0:
+        player.turn_left()
+    elif action == 2:
+        player.turn_right()
+    # action == 1 means do nothing
+
+    # Reward logic
+    reward = -1 if player.is_collision(closest_ally) else 0.1
+    done = False  # or set True if game over
+
+    # Next state
+    next_state = [
+        player.xcor(), player.ycor(),
+        player.heading(),
+        closest_ally.xcor(), closest_ally.ycor()
+    ]
+
+    # Save experience
+    buffer.push((state, action, reward, next_state, done))
+
+    # Learn from replay
+    if len(buffer) > 32:
+        batch = buffer.sample(32)
+        states, actions, rewards, next_states, dones = zip(*batch)
+
+        states = torch.FloatTensor(states)
+        actions = torch.LongTensor(actions).unsqueeze(1)
+        rewards = torch.FloatTensor(rewards).unsqueeze(1)
+        next_states = torch.FloatTensor(next_states)
+        dones = torch.BoolTensor(dones).unsqueeze(1)
+
+        q_values = policy_net(states).gather(1, actions)
+        next_q_values = target_net(next_states).max(1)[0].detach().unsqueeze(1)
+        expected_q_values = rewards + gamma * next_q_values * (~dones)
+
+        loss = nn.MSELoss()(q_values, expected_q_values)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+
+
+
+
+
+
+
+
+    # Auto-aim with PyTorch model
+    if enemies:
+        # Prepare input: find closest enemy
+        closest_enemy = min(enemies, key=lambda e: player.distance(e))
+        dx = closest_enemy.xcor() - player.xcor()
+        dy = closest_enemy.ycor() - player.ycor()
+        
+        
+        #Targetlock
+        true_angle = math.degrees(math.atan2(dx,dy))
+
+        input_tensor = torch.tensor([[player.xcor(), player.ycor(), closest_enemy.xcor(), closest_enemy.ycor()]], dtype=torch.float32)
+        angle_tensor = model(input_tensor)
+        predicted_angle = angle_tensor.item()
+        
+        target_tensor = torch.tensor([[true_angle]], dtype=torch.float32)
+        loss = criterion(angle_tensor, target_tensor)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        
+        player.setheading(predicted_angle)
+
+        #autoaim and fire
+        angle_diff = abs(player.heading() - predicted_angle)
+        if angle_diff < 3 and missile.status == "ready":
+            missile.fire()
+
+
     
-<<<<<<< HEAD
-=======
+        # Optionally draw the line
+        line_drawer.clear()
+        line_drawer.penup()
+        line_drawer.goto(player.xcor(), player.ycor())
+        line_drawer.pendown()
+        line_drawer.goto(closest_enemy.xcor(), closest_enemy.ycor())
+
+        mid_x = (player.xcor() + closest_enemy.xcor()) / 2
+        mid_y = (player.ycor() + closest_enemy.ycor()) / 2
+        distance = player.distance(closest_enemy)
+        line_drawer.penup()
+        line_drawer.goto(mid_x, mid_y + 10)
+        line_drawer.write(f"---{distance:.2f}---", align="center", font=("Arial", 10, "normal"))
+
+
+
+
+
+
     #Multiple object movement
     for enemy in enemies:
         enemy.move()
->>>>>>> 2a70222 (add some auto and pytorch)
         
         if player.is_collision(enemy):
             x = random.randint(-250,250)
@@ -332,7 +418,3 @@ delay = input("Press Enter to finish.>")
 
 
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 2a70222 (add some auto and pytorch)

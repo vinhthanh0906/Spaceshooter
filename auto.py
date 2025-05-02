@@ -1,17 +1,10 @@
 import turtle
 import random
-import os
-<<<<<<< HEAD
-import pygame
-import time
-#init mixer module to playsound
-pygame.mixer.init()
-=======
+import math
 # import pygame
 import time
 #init mixer module to playsound
 # pygame.mixer.init()
->>>>>>> 2a70222 (add some auto and pytorch)
 
 
 #GAME DEV
@@ -110,13 +103,8 @@ class Missile(Sprite):
     def fire(self):
         if self.status == "ready":
             self.status = "shoot"
-<<<<<<< HEAD
-            sound = pygame.mixer.Sound("D:/WORK/Python/Game/spaceshooter/sound/Sound Effect - Laser.mp3")
-            sound.play()
-=======
             # sound = pygame.mixer.Sound("D:\WORK\Python\Game\spaceshooter\sfx\missle.mp3")
             # sound.play()
->>>>>>> 2a70222 (add some auto and pytorch)
 
     def move(self):
         if self.status == "ready":
@@ -189,11 +177,7 @@ turtle.fd(0)
 #Set the animation speed to the maximum
 turtle.speed(0) # set turtle speed
 turtle.bgcolor('black') # initiate a black window
-<<<<<<< HEAD
-# turtle.bgpic('D:\WORK\Python\Game\spaceshooter\pic\desktop-wallpaper-pure-black-solid-black.jpg')
-=======
 # turtle.bgpic('D:\WORK\Python\Game\spaceshooter\img\pic.gif')
->>>>>>> 2a70222 (add some auto and pytorch)
 
 #window title
 turtle.title("Spacewar")
@@ -235,70 +219,75 @@ game.draw_border()
 
 #Show status
 game.show_status()
-<<<<<<< HEAD
-pygame.mixer.Sound("D:/WORK/Python/Game/spaceshooter/sound/Travis Scott - HIGHEST IN THE ROOM (Audio).mp3")
-
-
-#Loop the game 
-
-while True:
-    turtle.update()
-    time.sleep(0.01)
-    player.move()
-    missile.move()
-    
-    #Multiple object movement
-    for enemy in enemies:
-        enemy.move()
-        
-        if player.is_collision(enemy):
-            x = random.randint(-250,250)
-            y = random.randint(-250,250)
-            enemy.goto(x,y)
-            game.score -= 5
-            game.show_status()
-            
-            
-        if missile.is_collision(enemy):
-            game.score += 10
-            sfx = pygame.mixer.Sound("D:/WORK/Python/Game/spaceshooter/sound/Big Explosion Sound Effect.mp3")
-            sfx.play()
-            x = random.randint(-250,250)
-            y = random.randint(-250,250)
-            enemy.goto(x,y)
-            missile.status = 'ready'
-            game.show_status()
-            
-    
-    for ally in allies:
-        ally.move()
-        if missile.is_collision(ally):
-            x = random.randint(-250,250)
-            y = random.randint(-250,250)
-            ally.goto(x,y)
-            game.score -= 10
-            game.show_status()
-        
-        
-=======
 # pygame.mixer.Sound("D:\WORK\Python\Game\spaceshooter\sfx\game_music.mp3")
 
 
-#Loop the game 
->>>>>>> 2a70222 (add some auto and pytorch)
 
+
+#Autoaim Mechanic
+def get_angle_to_target(from_sprite, to_sprite):
+    dx = to_sprite.xcor() - from_sprite.xcor()
+    dy = to_sprite.ycor() - from_sprite.ycor()
+    angle = math.degrees(math.atan2(dy, dx))
+    return angle
+
+
+# Line drawer for auto-aim
+line_drawer = turtle.Turtle()
+line_drawer.color("white")
+line_drawer.penup()
+line_drawer.hideturtle()
+line_drawer.speed(0)
+
+
+
+
+
+
+
+#Loop the game 
 while True:
     turtle.update()
     time.sleep(0.01)
     player.move()
     missile.move()
     
-<<<<<<< HEAD
-=======
+    # Auto-aim to nearest red enemy and draw line + distance
+    # if statement for min distance
+    closest_enemy = None
+    min_distance = float('inf')
+
+    for enemy in enemies:
+        distance = player.distance(enemy)
+        if distance < min_distance:
+            min_distance = distance
+            closest_enemy = enemy
+
+    if closest_enemy:
+        # Auto-aim
+        player.setheading(player.towards(closest_enemy))
+
+        # Clear previous line/text
+        line_drawer.clear()
+
+        # Draw line from player to enemy
+        line_drawer.penup()
+        line_drawer.goto(player.xcor(), player.ycor())
+        line_drawer.pendown()
+        line_drawer.goto(closest_enemy.xcor(), closest_enemy.ycor())
+
+        # Write distance at the midpoint
+        mid_x = (player.xcor() + closest_enemy.xcor()) / 2
+        mid_y = (player.ycor() + closest_enemy.ycor()) / 2
+        line_drawer.penup()
+        line_drawer.goto(mid_x, mid_y + 10)  # Slightly above the line
+        line_drawer.write(f"-{min_distance:.2f}-", align="center", font=("Arial", 10, "normal"))
+
+
+    
     #Multiple object movement
     for enemy in enemies:
         enemy.move()
->>>>>>> 2a70222 (add some auto and pytorch)
         
         if player.is_collision(enemy):
             x = random.randint(-250,250)
@@ -332,7 +321,3 @@ delay = input("Press Enter to finish.>")
 
 
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 2a70222 (add some auto and pytorch)

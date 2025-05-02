@@ -37,9 +37,9 @@ class BoundaryAvoidanceNN(nn.Module):
 
 model = AimingNN()
 criterion = nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=0.05)
+optimizer = optim.Adam(model.parameters(), lr=0.01)
 
 boundary_model = BoundaryAvoidanceNN()
-optimizer_boundary = torch.optim.Adam(boundary_model.parameters(), lr=0.05)
+optimizer_boundary = torch.optim.Adam(boundary_model.parameters(), lr=0.01)
 
 

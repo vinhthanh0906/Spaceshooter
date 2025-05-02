@@ -1,0 +1,19 @@
+# Ignore pvcache
+pvcache
+
+# Ignore .vscode directory
+.vscode/
+
+# Ignore describe
+describe
+
+# Ignore pic directory
+pic/
+
+# Ignore sound directory
+sound/
+
+# Ignore .gitkeep
+.gitkeep
+
+# Existing .gitignore content (if any) would remain below

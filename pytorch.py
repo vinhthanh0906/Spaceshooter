@@ -211,11 +211,11 @@ missile = Missile("triangle","yellow",0 ,0)
 
 #Multiple enemies and allies
 enemies = []
-for i in range(1):
+for i in range(5):
     enemies.append(Enemy("circle", "red", -100,0))
 
 allies = [] 
-for ally in range(4):
+for ally in range(6):
     allies.append(Ally("square", "cyan",0,0 ))
 
 
@@ -238,13 +238,18 @@ game.show_status()
 # pygame.mixer.Sound("D:\WORK\Python\Game\spaceshooter\sfx\game_music.mp3")
 
 
-#TargetLock Line Drawer
-# Line drawer for auto-aim
+# TargetLock Line Drawer
 line_drawer = turtle.Turtle()
 line_drawer.color("white")
 line_drawer.penup()
 line_drawer.hideturtle()
 line_drawer.speed(0)
+
+
+status_writer = turtle.Turtle()
+status_writer.hideturtle()
+status_writer.penup()
+status_writer.goto(0, 310)
 
 
 #Loop the game 
@@ -254,44 +259,46 @@ while True:
     player.move()
     missile.move()
 
-    # Auto-aim with PyTorch model
+    
+    if allies:
+            for ally in allies:
+                angle_to_ally = player.towards(ally)
+                friendly_fire_angle = abs((angle_to_ally - player.heading() + 360) % 360)
+                if friendly_fire_angle > 180:
+                    friendly_fire_angle = 360 - friendly_fire_angle
+
+                if friendly_fire_angle < 2 and missile.status == "firing":
+                    missile.status = "ready"  
+
     if enemies:
-        
-        # Prepare input: find closest enemy
         closest_enemy = min(enemies, key=lambda e: player.distance(e))
-        true_angle = player.towards(closest_enemy)
         dx = closest_enemy.xcor() - player.xcor()
         dy = closest_enemy.ycor() - player.ycor()
-        
-        
-        
-        
-        #TargetLock using Pytorch tensor
         true_angle = player.towards(closest_enemy)
 
         input_tensor = torch.tensor([[player.xcor(), player.ycor(), closest_enemy.xcor(), closest_enemy.ycor()]], dtype=torch.float32)
         angle_tensor = model(input_tensor)
         predicted_angle = angle_tensor.item()
-        
+
         target_tensor = torch.tensor([[true_angle]], dtype=torch.float32)
         loss = criterion(angle_tensor, target_tensor)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        
+
         player.setheading(predicted_angle)
-    
 
-    
+        for enemy in enemies:
+            angle_to_enemy = player.towards(enemy)
+            angle_diff = abs((angle_to_enemy - player.heading() + 360) % 360)
+            if angle_diff > 180:
+                angle_diff = 360 - angle_diff
 
-        #autoaim and fire
-        angle_diff = abs(player.heading() - true_angle)
-        if angle_diff < 2 and missile.status == "ready":
-            missile.fire()
+            if angle_diff < 2 and missile.status == "ready":
+                missile.fire()
+                break  
+
             
-
-    
-
             
         line_drawer.clear()
         line_drawer.penup()
@@ -299,51 +306,53 @@ while True:
         line_drawer.pendown()
         line_drawer.goto(closest_enemy.xcor(), closest_enemy.ycor())
 
-        mid_x = (player.xcor() + closest_enemy.xcor()) / 2
-        mid_y = (player.ycor() + closest_enemy.ycor()) / 2
-        distance = player.distance(closest_enemy)
-        line_drawer.penup()
-        line_drawer.goto(mid_x, mid_y + 10)
-        line_drawer.write(f"---{distance:.2f}---", align="center", font=("Arial", 10, "normal"))
-
-        # Clear previous lines and labels
-        line_drawer.clear()
-
-        # Draw line to enemy
-        line_drawer.penup()
-        line_drawer.goto(player.xcor(), player.ycor())
-        line_drawer.pendown()
-        line_drawer.goto(closest_enemy.xcor(), closest_enemy.ycor())
-
-        # Compute distance
+            
         mid_x = (player.xcor() + closest_enemy.xcor()) / 2
         mid_y = (player.ycor() + closest_enemy.ycor()) / 2
         distance = player.distance(closest_enemy)
 
-        # Write distance
         line_drawer.penup()
         line_drawer.goto(mid_x, mid_y + 10)
         line_drawer.write(f"---{distance:.2f}---", align="center", font=("Arial", 10, "normal"))
 
-        # Write angle just below the distance
         dx = closest_enemy.xcor() - player.xcor()
         dy = closest_enemy.ycor() - player.ycor()
         true_angle = math.degrees(math.atan2(dy, dx))
         player_angle = player.heading()
         angle_diff = (true_angle - player_angle + 360) % 360
         if angle_diff > 180:
-            angle_diff = 360 - angle_diff  # use smallest angle
+            angle_diff = 360 - angle_diff
 
-        # Write angle just below the distance
         line_drawer.goto(mid_x, mid_y - 10)
         line_drawer.write(f"Angle: {angle_diff:.1f}°", align="center", font=("Arial", 10, "normal"))
 
+
+
+        #Border Bounce Back
+        BOUNDARY_X = 300
+        BOUNDARY_Y = 300
+
+        hit_left   = player.xcor() <= -BOUNDARY_X
+        hit_right  = player.xcor() >= BOUNDARY_X
+        hit_top    = player.ycor() >= BOUNDARY_Y
+        hit_bottom = player.ycor() <= -BOUNDARY_Y
+
         
+        player.setx(max(min(player.xcor(), BOUNDARY_X), -BOUNDARY_X))
+        player.sety(max(min(player.ycor(), BOUNDARY_Y), -BOUNDARY_Y))
+
+        if (hit_left or hit_right) and (hit_top or hit_bottom):
+            player.setheading((player.heading() + 180) % 360)
+
+        elif hit_left or hit_right:
+            player.setheading(180 - player.heading())
+
+        elif hit_top or hit_bottom:
+            player.setheading(-player.heading())
+    
+    
 
 
-
-
-    #Multiple object movement
     for enemy in enemies:
         enemy.move()
         

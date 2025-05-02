@@ -11,13 +11,13 @@ The game uses a simple PyTorch model to predict the optimal firing angle based o
 
 ## 🖼️ Screenshot
 
-![Gameplay Screenshot](describe/sc.png)
+![Image](https://github.com/user-attachments/assets/76c42b11-beef-4ca5-a015-6c6c643e6f9b)
 
 ---
 
 ## 🎥 Demo Video
 
-[Demo](describe/gif.webm)  
+![Demo](https://github.com/user-attachments/assets/53817968-c1ba-4af1-80c5-5bad73adb3b8)
 
 
 ---

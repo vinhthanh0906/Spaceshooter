@@ -1,17 +1,15 @@
 import turtle
 import random
 import os
-<<<<<<< HEAD
 import pygame
 import time
 #init mixer module to playsound
 pygame.mixer.init()
-=======
+
 # import pygame
 import time
 #init mixer module to playsound
 # pygame.mixer.init()
->>>>>>> 2a70222 (add some auto and pytorch)
 
 
 #GAME DEV
@@ -110,13 +108,10 @@ class Missile(Sprite):
     def fire(self):
         if self.status == "ready":
             self.status = "shoot"
-<<<<<<< HEAD
             sound = pygame.mixer.Sound("D:/WORK/Python/Game/spaceshooter/sound/Sound Effect - Laser.mp3")
             sound.play()
-=======
             # sound = pygame.mixer.Sound("D:\WORK\Python\Game\spaceshooter\sfx\missle.mp3")
             # sound.play()
->>>>>>> 2a70222 (add some auto and pytorch)
 
     def move(self):
         if self.status == "ready":
@@ -189,11 +184,10 @@ turtle.fd(0)
 #Set the animation speed to the maximum
 turtle.speed(0) # set turtle speed
 turtle.bgcolor('black') # initiate a black window
-<<<<<<< HEAD
+
 # turtle.bgpic('D:\WORK\Python\Game\spaceshooter\pic\desktop-wallpaper-pure-black-solid-black.jpg')
-=======
+
 # turtle.bgpic('D:\WORK\Python\Game\spaceshooter\img\pic.gif')
->>>>>>> 2a70222 (add some auto and pytorch)
 
 #window title
 turtle.title("Spacewar")
@@ -235,8 +229,7 @@ game.draw_border()
 
 #Show status
 game.show_status()
-<<<<<<< HEAD
-pygame.mixer.Sound("D:/WORK/Python/Game/spaceshooter/sound/Travis Scott - HIGHEST IN THE ROOM (Audio).mp3")
+# pygame.mixer.Sound("D:/WORK/Python/Game/spaceshooter/sound/Travis Scott - HIGHEST IN THE ROOM (Audio).mp3")
 
 
 #Loop the game 
@@ -279,13 +272,11 @@ while True:
             game.score -= 10
             game.show_status()
         
-        
-=======
+
 # pygame.mixer.Sound("D:\WORK\Python\Game\spaceshooter\sfx\game_music.mp3")
 
 
 #Loop the game 
->>>>>>> 2a70222 (add some auto and pytorch)
 
 while True:
     turtle.update()
@@ -293,12 +284,10 @@ while True:
     player.move()
     missile.move()
     
-<<<<<<< HEAD
-=======
+
     #Multiple object movement
     for enemy in enemies:
         enemy.move()
->>>>>>> 2a70222 (add some auto and pytorch)
         
         if player.is_collision(enemy):
             x = random.randint(-250,250)
@@ -331,8 +320,3 @@ delay = input("Press Enter to finish.>")
 
 
 
-
-<<<<<<< HEAD
-
-=======
->>>>>>> 2a70222 (add some auto and pytorch)

@@ -41,14 +41,18 @@ git clone https://github.com/vinhthanh0906/spaceshooter.git
 cd spaceshooter
 ```
 
-
 ```bash
-conda create -n spaceshooter python=3.12 -y
-conda activate spaceshooter
+python -m venv spaceshooter
+spaceshooter\Scripts\activate
 ```
 
+Window
 ```bash
 pip install -r requirements.txt
+```
+Mac and Linux
+```bash
+source spaceshooter/bin/activate
 ```
 
 If you want to play manually
@@ -57,7 +61,7 @@ If you want to play manually
 python main.py
 ```
 
-Pytorch-Autopilot
+PytorchNN-Autopilot
 ```bash
 python pytorch.py
 ```
